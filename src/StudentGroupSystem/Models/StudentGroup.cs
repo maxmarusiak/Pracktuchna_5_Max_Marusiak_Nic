@@ -1,100 +1,61 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace StudentGroupSystem.Models
 {
-    public class StudentGroup
+    public class StudentGroup : BaseEntity
     {
-        public List<Student> Students { get; set; } = new List<Student>();
+        public string GroupName { get; set; }
 
-        public void AddStudent(Student s)
+        public List<UniversityMember> Members { get; set; }
+
+        public StudentGroup(int id, string name)
+            : base(id)
         {
-            Students.Add(s);
+            GroupName = name;
+            Members = new List<UniversityMember>();
         }
 
-        public void RemoveStudent(Guid id)
+        public override string ToString()
         {
-            Students.RemoveAll(s => s.Id == id);
+            return $"{base.ToString()}, Group: {GroupName}, Members: {Members.Count}";
         }
 
-        public string SearchByNameFragment(string fragment)
+        public void AddMember(UniversityMember member)
         {
-            fragment = fragment.ToLower();
-
-            var matches = Students
-                .Where(s => s.FullName.ToLower().Contains(fragment))
-                .ToList();
-
-            if (!matches.Any())
-                return "Нічого не знайдено.";
-
-            var sb = new StringBuilder();
-            foreach (var s in matches)
-                sb.AppendLine(s.GetFormattedInfo());
-
-            return sb.ToString();
+            Members.Add(member);
         }
 
-        public string ExportToCsv()
+        public void RemoveMember(int id)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("FullName;Id;Grades;Notes");
-
-            foreach (var s in Students)
-            {
-                sb.AppendLine($"{s.FullName};{s.Id};{string.Join(",", s.LabGrades)};{s.Notes}");
-            }
-
-            return sb.ToString();
+            var m = Members.FirstOrDefault(x => x.Id == id);
+            if (m != null)
+                Members.Remove(m);
         }
 
-        public void ImportStudentsFromText(string rawText)
+        public IEnumerable<UniversityMember> Search(string fragment)
         {
-            var lines = rawText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var line in lines)
-            {
-                var parts = line.Split(';', StringSplitOptions.RemoveEmptyEntries);
-
-                if (parts.Length < 1)
-                    continue;
-
-                var student = new Student(parts[0]);
-
-                if (parts.Length >= 2)
-                    student.Notes = parts[1];
-
-                AddStudent(student);
-            }
+            return Members.Where(m => m.Name.Contains(fragment, StringComparison.OrdinalIgnoreCase));
         }
 
-        public static StudentGroup operator +(StudentGroup a, StudentGroup b)
+        public IEnumerable<Student> GetStudents()
         {
-            var merged = new StudentGroup();
-            merged.Students.AddRange(a.Students);
-            merged.Students.AddRange(b.Students);
-            return merged;
+            return Members.OfType<Student>();
         }
 
-        public Student this[string id]
-            => Students.FirstOrDefault(s => s.Id.ToString() == id);
-
-        public Student BestStudent()
+        public double GetAverageGrade()
         {
-            if (Students.Count == 0) return null;
+            var students = Members.OfType<Student>().ToList();
+            if (students.Count == 0) return 0;
 
-            Student best = Students[0];
-            foreach (var s in Students)
-                if (s > best)
-                    best = s;
+            return students.Average(s => s.AverageGrade.Value);
+        }
 
-            return best;
-        }   
-
-        public StudentGroup MergeGroups(StudentGroup other) => this + other;
-
-
+        public void PrintAll()
+        {
+            foreach (var m in Members)
+                Console.WriteLine(m.GetInfo());
+        }
     }
 }
