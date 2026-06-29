@@ -1,5 +1,6 @@
 using System;
 using StudentGroupSystem.Models;
+using StudentGroupSystem.Models.Students;
 
 namespace StudentGroupSystem.Menu
 {
@@ -9,7 +10,7 @@ namespace StudentGroupSystem.Menu
 
         public MainMenu()
         {
-            _group = new StudentGroup(1, "Default Group");
+            _group = new StudentGroup(1, "Polymorphism Group");
         }
 
         public void Run()
@@ -17,90 +18,110 @@ namespace StudentGroupSystem.Menu
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("=== MAIN MENU ===");
-                Console.WriteLine("1. Add Student");
-                Console.WriteLine("2. Remove Student");
-                Console.WriteLine("3. Show Group Info");
-                Console.WriteLine("4. Exit");
-                Console.Write("Choose option: ");
+                Console.WriteLine("=== POLYMORPHISM MENU ===");
+                Console.WriteLine("1. Add Bachelor");
+                Console.WriteLine("2. Add Master");
+                Console.WriteLine("3. Add PhD");
+                Console.WriteLine("4. Show All Members");
+                Console.WriteLine("5. Search by Name");
+                Console.WriteLine("6. Show Average Grade");
+                Console.WriteLine("7. Exit");
 
+                Console.Write("Choose option: ");
                 string input = Console.ReadLine();
 
                 switch (input)
                 {
                     case "1":
-                        AddStudent();
+                        AddBachelor();
                         break;
 
                     case "2":
-                        RemoveStudent();
+                        AddMaster();
                         break;
 
                     case "3":
-                        ShowGroup();
+                        AddPhD();
                         break;
 
                     case "4":
+                        _group.PrintAll();
+                        Console.ReadKey();
+                        break;
+
+                    case "5":
+                        Console.Write("Fragment: ");
+                        var f = Console.ReadLine();
+                        foreach (var m in _group.Search(f))
+                            Console.WriteLine(m.GetInfo());
+                        Console.ReadKey();
+                        break;
+
+                    case "6":
+                        Console.WriteLine($"Average grade: {_group.GetAverageGrade()}");
+                        Console.ReadKey();
+                        break;
+
+                    case "7":
                         return;
 
                     default:
-                        Console.WriteLine("Invalid option!");
+                        Console.WriteLine("Invalid option");
                         Console.ReadKey();
                         break;
                 }
             }
         }
 
-        private void AddStudent()
+        private void AddBachelor()
         {
-            Console.Write("Enter student ID: ");
+            Console.Write("ID: ");
             int id = int.Parse(Console.ReadLine());
 
-            Console.Write("Enter student name: ");
+            Console.Write("Name: ");
             string name = Console.ReadLine();
 
-            Console.Write("Enter grade value: ");
-            double gradeValue = double.Parse(Console.ReadLine());
+            Console.Write("Grade: ");
+            double grade = double.Parse(Console.ReadLine());
 
-            GradePoint gp = new GradePoint(id + 1000, gradeValue);
-            Student s = new Student(id, name, gp);
+            var gp = new GradePoint(id + 1000, grade);
+            var b = new BachelorStudent(id, name, gp);
 
-            _group += s;
-
-            Console.WriteLine("Student added!");
-            Console.ReadKey();
+            _group.AddMember(b);
         }
 
-        private void RemoveStudent()
+        private void AddMaster()
         {
-            Console.Write("Enter student ID to remove: ");
+            Console.Write("ID: ");
             int id = int.Parse(Console.ReadLine());
 
-            Student toRemove = _group.Students.Find(s => s.Id == id);
+            Console.Write("Name: ");
+            string name = Console.ReadLine();
 
-            if (toRemove != null)
-            {
-                _group -= toRemove;
-                Console.WriteLine("Student removed!");
-            }
-            else
-            {
-                Console.WriteLine("Student not found!");
-            }
+            Console.Write("Grade: ");
+            double grade = double.Parse(Console.ReadLine());
 
-            Console.ReadKey();
+            var gp = new GradePoint(id + 2000, grade);
+            var m = new MasterStudent(id, name, gp);
+
+            _group.AddMember(m);
         }
 
-        private void ShowGroup()
+        private void AddPhD()
         {
-            Console.WriteLine(_group.ToString());
+            Console.Write("ID: ");
+            int id = int.Parse(Console.ReadLine());
 
-            foreach (var s in _group.Students)
-            {
-                Console.WriteLine(" - " + s.ToString());
-            }
+            Console.Write("Name: ");
+            string name = Console.ReadLine();
 
-            Console.ReadKey();
+            Console.Write("Grade: ");
+            double grade = double.Parse(Console.ReadLine());
+
+            var gp = new GradePoint(id + 3000, grade);
+            var p = new PhDStudent(id, name, gp);
+
+            _group.AddMember(p);
         }
     }
 }
