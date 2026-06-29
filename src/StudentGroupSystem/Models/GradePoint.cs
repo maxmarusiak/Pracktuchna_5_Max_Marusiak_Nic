@@ -1,33 +1,44 @@
-public class GradePoint
+using System;
+
+namespace StudentGroupSystem.Models
 {
-    public double Value { get; private set; }
-
-    public GradePoint(double value)
+    public class GradePoint : BaseEntity
     {
-        if (value < 0 || value > 10)
-            throw new ArgumentOutOfRangeException(nameof(value));
-        Value = value;
+        public double Value { get; set; }
+
+        public GradePoint(int id, double value)
+            : base(id)
+        {
+            Value = value;
+        }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()}, Grade: {Value}";
+        }
+
+        public static GradePoint operator +(GradePoint a, GradePoint b)
+            => new GradePoint(0, a.Value + b.Value);
+
+        public static GradePoint operator ++(GradePoint g)
+        {
+            g.Value++;
+            return g;
+        }
+
+        public static GradePoint operator --(GradePoint g)
+        {
+            g.Value--;
+            return g;
+        }
+
+        public static bool operator >(GradePoint a, GradePoint b)
+            => a.Value > b.Value;
+
+        public static bool operator <(GradePoint a, GradePoint b)
+            => a.Value < b.Value;
+
+        public static explicit operator int(GradePoint g)
+            => (int)g.Value;
     }
-
-    public static GradePoint operator +(GradePoint a, GradePoint b)
-        => new GradePoint(Math.Min(10, a.Value + b.Value));
-
-    public static GradePoint operator ++(GradePoint a)
-        => new GradePoint(Math.Min(10, a.Value + 1));
-
-    public static GradePoint operator --(GradePoint a)
-        => new GradePoint(Math.Max(0, a.Value - 1));
-
-    public static bool operator >(GradePoint a, GradePoint b) => a.Value > b.Value;
-    public static bool operator <(GradePoint a, GradePoint b) => a.Value < b.Value;
-    public static bool operator >=(GradePoint a, GradePoint b) => a.Value >= b.Value;
-    public static bool operator <=(GradePoint a, GradePoint b) => a.Value <= b.Value;
-
-    public static bool operator true(GradePoint a) => a.Value >= 8;
-    public static bool operator false(GradePoint a) => a.Value < 8;
-
-    public static implicit operator double(GradePoint g) => g.Value;
-    public static implicit operator GradePoint(double v) => new GradePoint(v);
-
-    public override string ToString() => Value.ToString("0.0");
 }

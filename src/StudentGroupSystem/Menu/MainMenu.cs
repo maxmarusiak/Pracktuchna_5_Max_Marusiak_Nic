@@ -26,8 +26,8 @@ namespace StudentGroupSystem.Menu
                 Console.WriteLine("5. Search by Name");
                 Console.WriteLine("6. Show Average Grade");
                 Console.WriteLine("7. Exit");
-                Console.Write("Choose option: ");
 
+                Console.Write("Choose option: ");
                 string input = Console.ReadLine();
 
                 switch (input)
